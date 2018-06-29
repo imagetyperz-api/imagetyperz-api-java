@@ -19,8 +19,47 @@ public class Arguments {
 
     private String _proxy = "";
 
+    // v3
+    private String _type = "0";
+    private String _v3_action = "";
+    private String _v3_score = "";
+
+    private String _user_agent = "";
+
     private boolean _case_sensitive = false;
 
+    public void set_user_agent(String user_agent)
+    {
+        this._user_agent = user_agent;
+    }
+    public String get_user_agent()
+    {
+        return this._user_agent;
+    }
+    public void set_v3_score(String score)
+    {
+        this._v3_score = score;
+    }
+    public String get_v3_score()
+    {
+        return this._v3_score;
+    }
+    public void set_v3_action(String action)
+    {
+        this._v3_action = action;
+    }
+    public String get_v3_action()
+    {
+        return this._v3_action;
+    }
+    public void set_type(String type)
+    {
+        this._type = type;
+    }
+    public String get_type()
+    {
+        return this._type;
+    }
     public String get_username() {
         return _username;
     }

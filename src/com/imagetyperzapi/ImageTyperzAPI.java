@@ -164,7 +164,10 @@ public class ImageTyperzAPI {
         }
 
         // add proxy
-        if(d.containsKey("proxy")) params.put("proxy", d.get("proxy"));                 // with proxy
+        if(d.containsKey("proxy")){
+            params.put("proxy", d.get("proxy"));                 // with proxy
+            params.put("proxytype", "HTTP");
+        }
 
         // affiliate
         if(!this._affiliate_id.equals("0")) {

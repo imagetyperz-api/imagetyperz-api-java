@@ -10,14 +10,11 @@ Access token can be gathered from: http://www.imagetyperz.com/Forms/ClientHome.a
 
 -u and -p (legacy) way still works, but might get deprecated at some point, use access_token
 ============================================================================================
-Recaptcha (submit) - solve recaptcha; submit page_url and sitekey to our server
---------------------------------------------------------------------------------------------
 mode = 2
--a "access_token" -m 2 -pageurl "page_url" -sitekey "sitekey"
--a "access_token" -m 2 -pageurl "page_url" -sitekey "sitekey" -o "output_file" -affiliateid "affiliate_id" -proxy "IP:Port"
--a "access_token" -m 2 -pageurl "page_url" -sitekey "sitekey" -o "output_file" -affiliateid "affiliate_id" -proxy "IP:Port:user:pass"
 
-# read the API docs for more info on proxy
+ -a "your_token" -m 2 -pageurl "page_url" -sitekey "sitekey" -o "output_file" -refid "ref_id"
+ -proxy "IP:Port:[user:pass]" -user_agent "Your user_agent" -type "recaptcha type"
+ -v3_min_score "minimim v3 score" -v3_action "action to use when solving v3"
 
 ./program.sh -a "124GAD23t34" -m 2 -pageurl "http://test.com" -sitekey "adsvvv"
 --------------------------------------------------------------------------------------------
@@ -41,6 +38,7 @@ mode = 4
 
 ./program.sh -a "2f43g3g3" -m 4
 --------------------------------------------------------------------------------------------
+
 Set bad captcha - set a bad captcha by using the captcha ID
 --------------------------------------------------------------------------------------------
 mode = 5
@@ -48,6 +46,12 @@ mode = 5
 -a "access_token" -m 5 -captchaid "captcha_id" -o "output_file"
 
 ./program.sh -a "d23gg3g334" -m 5 -captchaid "321"
+
+--------------------------------------------------------------------------------------------
+Check if proxy was used in solving (in case proxy was submitted with recaptcha details)
+--------------------------------------------------------------------------------------------
+mode = 6
+-t "your_token" -m 6 -captchaid "captcha_id"
 ============================================================================================
 
 [*] The -o parameter is optional. The response/reply will be always printed to STDOUT.

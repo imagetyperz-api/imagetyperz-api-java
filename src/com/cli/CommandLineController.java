@@ -88,11 +88,29 @@ public class CommandLineController {
                 .desc("Proxy in format IP:Port")
                 .hasArg()
                 .build();
-        Option option_proxytype = Option.builder("proxytype")
+        Option option_user_agent = Option.builder("user_agent")
                 .required(false)
-                .desc("Proxy type")
+                .desc("User agent to use when solving recaptcha")
                 .hasArg()
                 .build();
+        // v3
+        Option option_type = Option.builder("type")
+                .required(false)
+                .desc("Type to use for recaptcha: 1 - normal, 2 - invisible, 3 - v3 (it's optional, defaults to 1)")
+                .hasArg()
+                .build();
+        Option option_v3_score = Option.builder("v3_min_score")
+                .required(false)
+                .desc("Minimum score to target when solving recaptcha v3")
+                .hasArg()
+                .build();
+        Option option_v3_action = Option.builder("v3_action")
+                .required(false)
+                .desc("Action to use when solving recaptcha v3")
+                .hasArg()
+                .build();
+
+
 
         Options options = new Options();
         options.addOption(option_a);
@@ -107,7 +125,10 @@ public class CommandLineController {
         options.addOption(option_id);
         options.addOption(option_case);
         options.addOption(option_proxy);
-        options.addOption(option_proxytype);
+        options.addOption(option_user_agent);
+        options.addOption(option_type);
+        options.addOption(option_v3_score);
+        options.addOption(option_v3_action);
         CommandLineParser parser = new DefaultParser();
 
         try{
@@ -185,6 +206,22 @@ public class CommandLineController {
         {
             this._args.set_affiliate_id(c.getOptionValue("affiliateid"));
         }
+        if(c.hasOption("user_agent"))
+        {
+            this._args.set_username(c.getOptionValue("user_agent"));
+        }
+        if(c.hasOption("type"))
+        {
+            this._args.set_type(c.getOptionValue("type"));
+        }
+        if(c.hasOption("v3_min_score"))
+        {
+            this._args.set_v3_score(c.getOptionValue("v3_min_score"));
+        }
+        if(c.hasOption("v3_action"))
+        {
+            this._args.set_v3_action(c.getOptionValue("v3_action"));
+        }
     }
 
     // run method
@@ -223,6 +260,7 @@ public class CommandLineController {
                 this.show_output(resp);
                 break;
             case "2":
+                Arguments a = this._args;
                 String page_url = this._args.get_page_url();
                 if (page_url.isEmpty())
                     throw new Exception("Invalid recaptcha pageurl");
@@ -238,7 +276,14 @@ public class CommandLineController {
                 d.put("sitekey", site_key);
 
                 // check proxy
-                if(!proxy.isEmpty()) d.put("sitekey", proxy);
+                if(!proxy.isEmpty()) d.put("proxy", proxy);
+                // user agent
+                if(!a.get_user_agent().isEmpty()) d.put("user_agent", a.get_user_agent());
+
+                // v3
+                if(!a.get_type().isEmpty()) d.put("type", a.get_type());
+                if(!a.get_v3_score().isEmpty()) d.put("v3_min_score", a.get_v3_score());
+                if(!a.get_type().isEmpty()) d.put("v3_action", a.get_v3_action());
 
                 captcha_id = i.submit_recaptcha(d);        // submit captcha
 
@@ -263,6 +308,14 @@ public class CommandLineController {
                     throw new Exception("captchaid is invalid");
                 String response = i.set_captcha_bad(bad_id);        // set it bad
                 this.show_output(response);     // show response
+                break;
+            case "6":
+                // get proxy status
+                String was_used_id = this._args.get_captcha_id();
+                if (was_used_id.isEmpty())
+                    throw new Exception("captchaid is invalid");
+                String rr = i.was_proxy_used(was_used_id);        // set it bad
+                this.show_output(rr);     // show response
                 break;
         }
     }

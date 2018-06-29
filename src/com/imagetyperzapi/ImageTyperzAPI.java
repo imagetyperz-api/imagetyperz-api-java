@@ -1,8 +1,11 @@
 package com.imagetyperzapi;
 
 import java.io.File;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.json.*;
 
 /**
  * Created by icebox on 22/05/17.
@@ -14,6 +17,7 @@ public class ImageTyperzAPI {
     private static String RECAPTCHA_RETRIEVE_ENDPOINT = "http://captchatypers.com/captchaapi/GetRecaptchaText.ashx";
     private static String BALANCE_ENDPOINT = "http://captchatypers.com/Forms/RequestBalance.ashx";
     private static String BAD_IMAGE_ENDPOINT = "http://captchatypers.com/Forms/SetBadImage.ashx";
+    private static String PROXY_CHECK_ENDPOINT = "http://captchatypers.com/captchaAPI/GetReCaptchaTextJSON.ashx";
 
     private static String CAPTCHA_ENDPOINT_CONTENT_TOKEN = "http://captchatypers.com/Forms/UploadFileAndGetTextNEWToken.ashx";
     private static String CAPTCHA_ENDPOINT_URL_TOKEN = "http://captchatypers.com/Forms/FileUploadAndGetTextCaptchaURLToken.ashx";
@@ -21,6 +25,8 @@ public class ImageTyperzAPI {
     private static String RECAPTCHA_RETRIEVE_ENDPOINT_TOKEN = "http://captchatypers.com/captchaapi/GetRecaptchaTextToken.ashx";
     private static String BALANCE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/RequestBalanceToken.ashx";
     private static String BAD_IMAGE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/SetBadImageToken.ashx";
+    private static String PROXY_CHECK_ENDPOINT_TOKEN = "http://captchatypers.com/captchaAPI/GetReCaptchaTextTokenJSON.ashx";
+
     private static String USER_AGENT = "JavaAPI1.0";      // user agent used in requests
 
     private String _access_token;
@@ -123,8 +129,11 @@ public class ImageTyperzAPI {
         return this._captcha.text();
     }
 
-    // Submit recaptcha
-    public String submit_recaptcha(String page_url, String sitekey) throws Exception {
+    // Submit recaptcha with params
+    public String submit_recaptcha(HashMap<String, String> d) throws Exception {
+        String page_url = d.get("page_url");
+        String sitekey = d.get("sitekey");
+
         // check vars first
         if(page_url.isEmpty())
         {
@@ -154,66 +163,21 @@ public class ImageTyperzAPI {
             url = RECAPTCHA_SUBMIT_ENDPOINT_TOKEN;
         }
 
-        // affiliate
-        if(!this._affiliate_id.equals("0")) {
-            params.put("affiliateid", this._affiliate_id);
-        }
-
-        // do request
-        String response = Utils.post(url, params, USER_AGENT);
-
-        // check if error
-        int i = response.indexOf("ERROR:");
-        if(i != -1)     // it's an error
-        {
-            String resp_err = response.substring(6, response.length()).trim();
-            this._error = resp_err;         // save last error
-            throw new Exception(resp_err);
-        }
-
-        // create recaptcha object with received captcha ID
-        Recaptcha rc = new Recaptcha(response);
-        this._recaptcha = rc;       // save to obj
-
-        return response;        // return response
-    }
-
-    // Submit recaptcha with proxy
-    public String submit_recaptcha(String page_url, String sitekey, String proxy) throws Exception {
-        // check vars first
-        if(page_url.isEmpty())
-        {
-            throw new Exception("page_url variable is null or empty");
-        }
-        if(sitekey.isEmpty())
-        {
-            throw new Exception("sitekey variable is null or empty");
-        }
-
-        // create params with request
-        String url = "";
-        Map<String,Object> params = new LinkedHashMap<>();
-        params.put("action", "UPLOADCAPTCHA");
-        params.put("pageurl", page_url);
-        params.put("googlekey", sitekey);
-        params.put("proxy", proxy);                 // with proxy
-
-        if(this._username != null && !this._username.isEmpty())
-        {
-            params.put("username", this._username);
-            params.put("password", this._password);
-            url = RECAPTCHA_SUBMIT_ENDPOINT;
-        }
-        else
-        {
-            params.put("token", this._access_token);
-            url = RECAPTCHA_SUBMIT_ENDPOINT_TOKEN;
-        }
+        // add proxy
+        if(d.containsKey("proxy")) params.put("proxy", d.get("proxy"));                 // with proxy
 
         // affiliate
         if(!this._affiliate_id.equals("0")) {
             params.put("affiliateid", this._affiliate_id);
         }
+
+        // user agent
+        if (d.containsKey("user_agent")) params.put("useragent", d.get("user_agent"));
+
+        // v3
+        if (d.containsKey("type")) params.put("recaptchatype", d.get("type"));
+        if (d.containsKey("v3_action")) params.put("captchaaction", d.get("v3_action"));
+        if (d.containsKey("v3_min_score")) params.put("score", d.get("v3_min_score"));
 
         // do request
         String response = Utils.post(url, params, USER_AGENT);
@@ -361,6 +325,68 @@ public class ImageTyperzAPI {
         }
 
         return response;        // return response
+    }
+
+    // Tells if proxy was used with captcha, if not, why
+    public String was_proxy_used(String captcha_id) throws Exception {
+        // create params of request
+        String url = "";
+        Map<String,Object> params = new LinkedHashMap<>();
+        params.put("action", "GETTEXT");
+        params.put("captchaid", captcha_id);
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            params.put("username", this._username);
+            params.put("password", this._password);
+            url = PROXY_CHECK_ENDPOINT;
+        }
+        else
+        {
+            params.put("token", this._access_token);
+            url = PROXY_CHECK_ENDPOINT_TOKEN;
+        }
+
+        // do request
+        String response = Utils.post(url, params, USER_AGENT);
+        response = response.substring(1, response.length() - 1);
+
+        // parse as JSON
+        JSONObject jsobj = new JSONObject(response);
+
+        // check for error
+        if(jsobj.has("Error")){
+            String err = jsobj.getString("Error");
+            this._error = err;
+            throw new Exception(err);
+        }
+
+        // get all variables
+        String result = jsobj.getString("Result");
+        String p_worker = jsobj.getString("Proxy_worker");
+        String p_client = jsobj.getString("Proxy_client");
+        String p_reason = jsobj.getString("Proxy_reason");
+
+        // check if we have a result or not
+        if(result.trim().equals("")){
+            String err = "captcha not completed yet";
+            this._error = err;
+            throw new Exception(err);
+        }
+        // check if client proxy was submitted
+        if(p_client.trim().equals("")){
+            return "no, reason: proxy was no sent with recaptcha submission request";
+        }
+        // check for reason
+        if(!p_reason.trim().equals("")){
+            return "no, reason: " + p_reason;
+        }
+        // check if proxy was used
+        if(p_client.split(":").length >= 2 && p_client.equals(p_worker)){
+            return "yes, used proxy: " + p_worker;
+        }
+
+        return "no, reason: unknown";
     }
 
     // Get last solved captcha text

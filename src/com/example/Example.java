@@ -1,13 +1,15 @@
 package com.example;
 
 import com.imagetyperzapi.ImageTyperzAPI;
+
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class Example {
     // test_api API method
     private static void test_api() throws Exception {
         // get access token from: http://www.imagetyperz.com/Forms/ClientHome.aspx
-        String access_token = "your_access_token";
+        String access_token = "access_token_here";
         ImageTyperzAPI i = new ImageTyperzAPI(access_token);      // init API with your access token
 
         // legacy way, will get deprecated at some point
@@ -21,16 +23,22 @@ public class Example {
         // solve normal captcha
         // --------------------
         System.out.println("Waiting for captcha to be solved ...");
-        String captcha_text = i.solve_captcha("http://scurt.pro/captcha.jpg", false);
+        String captcha_text = i.solve_captcha("http://example.com/captcha.jpg", false);
         System.out.println(String.format("Captcha text: %s", captcha_text));
 
         // solve recaptcha
         // -------------------------
-        // check: http://www.imagetyperz.com/Forms/recaptchaapi.aspx on how to get page_url and googlekey
-        String page_url = "your_pageurl_here";
-        String sitekey = "your_sitekey_here";
+        // check: https://www.github.com/imagetyperz-api/imagetyperz-api-java on how to get page_url and googlekey
         // submit captcha first to get ID
-        String captcha_id = i.submit_recaptcha(page_url, sitekey);
+        HashMap<String, String> d = new HashMap<String, String>();
+        d.put("page_url", "your_page_url");
+        d.put("sitekey", "your_sitekey");
+        //d.put("type", "3");                 // optional
+        //d.put("v3_min_score", "0.1");       // optional
+        //d.put("v3_action", "homepage");     // optional
+        //d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+        //d.put("user_agent", "Your user agent"); // optional
+        String captcha_id = i.submit_recaptcha(d);
         System.out.println("Waiting for recaptcha to be solved ...");
         while(i.in_progress(captcha_id))
         {
@@ -43,8 +51,7 @@ public class Example {
         // Other examples
         // ----------------------
         // com.imagetyperzapi.ImageTyperzAPI i = new com.imagetyperzapi.ImageTyperzAPI("your_token", "123");      // example with affiliate id
-        // i.submit_recaptcha(page_url, sitekey, "127.0.0.1:1234");             // solve recaptcha with proxy
-        // i.submit_recaptcha(page_url, sitekey, "127.0.0.1:1234:user:pass");             // solve recaptcha with proxy auth
+        // System.out.println(i.was_proxy_used(captcha_id));                          // check if proxy submitted was used in solving
         // System.out.println(i.set_captcha_bad(i.captcha_id()));                       // set captcha bad
         // System.out.println(i.captcha_id());                                        	// last captcha solved id
         // System.out.println(i.captcha_text());                                  	// last captcha solved text

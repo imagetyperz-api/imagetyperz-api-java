@@ -50,13 +50,25 @@ String captcha_text = i.solve_captcha("http://abc.com/captcha.jpg", false);
 
 **Submit recaptcha details**
 
-For recaptcha submission there are two things that are required.
+For recaptcha submission there are two things that are required, and some optional parameters
 - page_url
 - site_key
+- type - can be one of this 3 values: `1` - normal, `2` - invisible, `3` - v3 (it's optional, defaults to `1`)
+- v3_min_score - minimum score to target for v3 recaptcha `- optional`
+- v3_action - action parameter to use for v3 recaptcha `- optional`
+- proxy - proxy to use when solving recaptcha, eg. `12.34.56.78:1234` or `12.34.56.78:1234:user:password` `- optional`
+- user_agent - User-Agent to use when solving recaptcha `- optional` 
+
 ``` java
-String page_url = "your_pageurl_here";
-String sitekey = "your_sitekey_here";
-String captcha_id = i.submit_recaptcha(page_url, sitekey);
+HashMap<String, String> d = new HashMap<String, String>();
+d.put("page_url", "page_url_here");
+d.put("sitekey", "sitekey_here");
+d.put("type", "3");                 // optional
+d.put("v3_min_score", "0.3");       // optional
+d.put("v3_action", "homepage");     // optional
+d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+d.put("user_agent", "Your user agent"); // optional
+String captcha_id = i.submit_recaptcha(d);
 ```
 This method returns a captchaID. This ID will be used next, to retrieve the g-response, once workers have
 completed the captcha. This takes somewhere between 10-80 seconds.
@@ -86,18 +98,13 @@ The constructor accepts a 2nd parameter, as the affiliate id.
 ImageTyperzAPI i = new ImageTyperzAPI("your_token", "123");
 ```
 
+**Get details of proxy for recaptcha**
 
-**Submit recaptcha with proxy**
-
-When a proxy is submitted with the recaptcha details, the workers will complete the captcha using
-the provided proxy/IP.
+In case you submitted the recaptcha with proxy, you can check the status of the proxy, if it was used or not,
+and if not, what the reason was with the following:
 
 ``` java
-i.submit_recaptcha(page_url, sitekey, "12.34.56.78:1234");
-```
-Proxy with authentication is also supported
-``` java
-i.submit_recaptcha(page_url, sitekey, "12.34.56.78:1234:user:pass");
+System.out.println(i.set_captcha_bad(i.captcha_id()));
 ```
 
 **Set captcha bad**

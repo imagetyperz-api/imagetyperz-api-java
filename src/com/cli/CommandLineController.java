@@ -8,6 +8,7 @@ import org.apache.commons.cli.*;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 /**
  * Created by icebox on 25/05/17.
@@ -232,15 +233,15 @@ public class CommandLineController {
 
                 String captcha_id = "";
 
+                HashMap<String, String> d = new HashMap<String, String>();
+                d.put("page_url", page_url);
+                d.put("sitekey", site_key);
+
                 // check proxy
-                if(!proxy.isEmpty())
-                {
-                    captcha_id = i.submit_recaptcha(page_url, site_key, proxy);
-                }
-                else
-                {
-                    captcha_id = i.submit_recaptcha(page_url, site_key);
-                }
+                if(!proxy.isEmpty()) d.put("sitekey", proxy);
+
+                captcha_id = i.submit_recaptcha(d);        // submit captcha
+
                 this.show_output(captcha_id);
                 break;
             case "3":

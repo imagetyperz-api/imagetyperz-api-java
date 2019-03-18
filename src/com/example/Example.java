@@ -1,9 +1,12 @@
 package com.example;
 
 import com.imagetyperzapi.ImageTyperzAPI;
+import com.imagetyperzapi.Utils;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+
 
 public class Example {
     // test_api API method
@@ -33,11 +36,11 @@ public class Example {
         HashMap<String, String> d = new HashMap<String, String>();
         d.put("page_url", "your_page_url");
         d.put("sitekey", "your_sitekey");
-        //d.put("type", "3");                 // optional
-        //d.put("v3_min_score", "0.1");       // optional
-        //d.put("v3_action", "homepage");     // optional
-        //d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
-        //d.put("user_agent", "Your user agent"); // optional
+//        d.put("type", "3");                 // optional
+//        d.put("v3_min_score", "0.1");       // optional
+//        d.put("v3_action", "homepage");     // optional
+//        d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+//        d.put("user_agent", "Your user agent"); // optional
         String captcha_id = i.submit_recaptcha(d);
         System.out.println("Waiting for recaptcha to be solved ...");
         while(i.in_progress(captcha_id))
@@ -47,6 +50,30 @@ public class Example {
         // completed at this point
         String recaptcha_response = i.retrieve_captcha(captcha_id);     // get recaptcha response
         System.out.println(String.format("Recaptcha response: %s", recaptcha_response));
+
+        // Geetest
+        // ------------------------------------------
+//        HashMap<String, String> gp = new HashMap<String, String>();
+//        gp.put("domain", "example.com");
+//        gp.put("challenge", "challenge here");
+//        gp.put("gt", "gt here");
+//        //gp.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+//        //gp.put("user_agent", "Your user agent"); // optional
+//
+//        String geetest_id = i.submit_geetest(gp);
+//        System.out.println(String.format("Geetest captcha id: %s", geetest_id));
+//        System.out.println("Waiting for geetest captcha to be solved ...");
+//
+//        // retrieve
+//        // ---------
+//        while (i.in_progress(geetest_id)) Thread.sleep(10000);      // sleep for 10 seconds and retry
+//
+//        // we got a response at this point
+//        // ---------------------------------
+//        HashMap<String, String> gr = i.retrieve_geetest(geetest_id);     // get the response
+//        System.out.println(String.format("Geetest response: %s - %s - %s", gr.get("challenge"),
+//            gr.get("validate"), gr.get("seccode")));
+//
 
         // Other examples
         // ----------------------

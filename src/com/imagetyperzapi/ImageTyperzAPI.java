@@ -18,6 +18,8 @@ public class ImageTyperzAPI {
     private static String BALANCE_ENDPOINT = "http://captchatypers.com/Forms/RequestBalance.ashx";
     private static String BAD_IMAGE_ENDPOINT = "http://captchatypers.com/Forms/SetBadImage.ashx";
     private static String PROXY_CHECK_ENDPOINT = "http://captchatypers.com/captchaAPI/GetReCaptchaTextJSON.ashx";
+    private static String GEETEST_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadGeeTest.ashx";
+    private static String GEETEST_RETRIEVE_ENDPOINT = "http://captchatypers.com/captchaapi/getrecaptchatext.ashx";
 
     private static String CAPTCHA_ENDPOINT_CONTENT_TOKEN = "http://captchatypers.com/Forms/UploadFileAndGetTextNEWToken.ashx";
     private static String CAPTCHA_ENDPOINT_URL_TOKEN = "http://captchatypers.com/Forms/FileUploadAndGetTextCaptchaURLToken.ashx";
@@ -26,6 +28,7 @@ public class ImageTyperzAPI {
     private static String BALANCE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/RequestBalanceToken.ashx";
     private static String BAD_IMAGE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/SetBadImageToken.ashx";
     private static String PROXY_CHECK_ENDPOINT_TOKEN = "http://captchatypers.com/captchaAPI/GetReCaptchaTextTokenJSON.ashx";
+    private static String GEETEST_SUBMIT_ENDPOINT_TOKEN = "http://captchatypers.com/captchaapi/UploadGeeTestToken.ashx";
 
     private static String USER_AGENT = "JavaAPI1.0";      // user agent used in requests
 
@@ -36,6 +39,7 @@ public class ImageTyperzAPI {
 
     private Captcha _captcha;
     private Recaptcha _recaptcha;
+    private Geetest _geetest;
 
     private String _error = "";
 
@@ -241,11 +245,102 @@ public class ImageTyperzAPI {
         return response;
     }
 
+    // Submit geetest with params
+    public String submit_geetest(HashMap<String, String> d) throws Exception {
+        // check vars first
+        if(!d.containsKey("domain")) throw new Exception("domain variable is missing");
+        if(!d.containsKey("challenge")) throw new Exception("challenge variable is missing");
+        if(!d.containsKey("gt")) throw new Exception("gt variable is missing");
+
+        // create params with request
+        String url = "";
+        d.put("action", "UPLOADCAPTCHA");
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            d.put("username", this._username);
+            d.put("password", this._password);
+            url = GEETEST_SUBMIT_ENDPOINT;
+        }
+        else
+        {
+            d.put("token", this._access_token);
+            url = GEETEST_SUBMIT_ENDPOINT_TOKEN;
+        }
+
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) {
+            d.put("affiliateid", this._affiliate_id);
+        }
+
+        String params = Utils.map_to_url(d);
+        params = params.substring(1, params.length());
+        url = url + "?" + params;
+
+        // do request
+        String response = Utils.get(url, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            this._error = resp_err;         // save last error
+            throw new Exception(resp_err);
+        }
+
+        // create recaptcha object with received captcha ID
+        this._geetest = new Geetest(response);
+
+        return response;        // return response
+    }
+
+    // Retrieve geetest response using captcha ID
+    public HashMap<String, String> retrieve_geetest(String captcha_id) throws Exception {
+        // file exists, create params of request
+        String url = "";
+        Map<String,Object> params = new LinkedHashMap<>();
+        params.put("action", "GETTEXT");
+        params.put("captchaid", captcha_id);
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            params.put("username", this._username);
+            params.put("password", this._password);
+            url = GEETEST_RETRIEVE_ENDPOINT;
+        }
+        else
+        {
+            params.put("token", this._access_token);
+            url = GEETEST_RETRIEVE_ENDPOINT;
+        }
+
+        // do request
+        String response = Utils.post(url, params, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            if(response.indexOf("NOT_DECODED") == -1) {     // save it as obj error, only if it's not, NOT_DECODED
+                this._error = resp_err;         // save last error
+            }
+            throw new Exception(resp_err);
+        }
+
+        // we got a good response at this point, save it to recapthca obj and return it
+        this._geetest.set_response(response);
+        return this._geetest.response();
+    }
+
     // Check if recaptcha still in progress of solving
     public boolean in_progress(String captcha_id) throws Exception {
         try
         {
-            this.retrieve_captcha(captcha_id);
+            if(this._geetest != null) this.retrieve_geetest(captcha_id);
+            else this.retrieve_captcha(captcha_id);
             return false;       // no error, we're good
         }
         catch(Exception ex)

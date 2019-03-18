@@ -31,8 +31,9 @@ Once you've set your authentication details, you can start using the API
 String balance = i.account_balance();
 System.out.println(String.format("Balance: %s", balance));
 ```
+## Image captcha
 
-**Submit image captcha**
+### Submit image captcha
 
 ``` java
 String captcha_text = i.solve_captcha("captcha.jpg", false);
@@ -48,7 +49,9 @@ String captcha_text = i.solve_captcha("http://abc.com/captcha.jpg", false);
  For those that are still using username & password, retrieve your access_key from 
  imagetyperz.com
 
-**Submit recaptcha details**
+## reCAPTCHA
+
+### Submit reCAPTCHA details
 
 For recaptcha submission there are two things that are required, and some optional parameters
 - page_url
@@ -73,7 +76,7 @@ String captcha_id = i.submit_recaptcha(d);
 This method returns a captchaID. This ID will be used next, to retrieve the g-response, once workers have
 completed the captcha. This takes somewhere between 10-80 seconds.
 
-**Retrieve captcha response**
+### Retrieve captcha response
 
 Once you have the captchaID, you check for it's progress, and later on retrieve the gresponse.
 
@@ -88,6 +91,50 @@ while(i.in_progress(captcha_id))
 // completed at this point
 String recaptcha_response = i.retrieve_captcha(captcha_id);
 ```
+
+
+## GeeTest
+
+GeeTest is a captcha that requires 3 parameters to be solved:
+- domain
+- challenge
+- gt
+
+The response of this captcha after completion are 3 codes:
+- challenge
+- validate
+- seccode
+
+### Submit GeeTest
+```csharp
+HashMap<String, String> gp = new HashMap<String, String>();
+gp.put("domain", "example.com");
+gp.put("challenge", "challenge here");
+gp.put("gt", "gt here");
+//gp.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+//gp.put("user_agent", "Your user agent"); // optional
+
+String geetest_id = i.submit_geetest(gp);
+```
+
+Just like reCAPTCHA, you'll receive a captchaID.
+Using the ID, you'll be able to retrieve 3 codes after completion.
+
+Optionally, you can send proxy and user_agent along.
+
+### Retrieve GeeTest codes
+```java
+System.out.println(String.format("Geetest captcha id: %s", geetest_id));
+System.out.println("Waiting for geetest captcha to be solved ...");
+
+while (i.in_progress(geetest_id)) Thread.sleep(10000);      // sleep for 10 seconds and retry
+
+HashMap<String, String> gr = i.retrieve_geetest(geetest_id);     // get the response
+System.out.println(String.format("Geetest response: %s - %s - %s", gr.get("challenge"),
+gr.get("validate"), gr.get("seccode")));
+```
+
+Response will be a string hashmap, which looks like this: `{'challenge': '...', 'validate': '...', 'seccode': '...'}`
 
 ## Other methods/variables
 

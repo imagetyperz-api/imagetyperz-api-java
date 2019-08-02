@@ -1,9 +1,6 @@
 package com.example;
 
 import com.imagetyperzapi.ImageTyperzAPI;
-import com.imagetyperzapi.Utils;
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -25,8 +22,16 @@ public class Example {
 
         // solve normal captcha
         // --------------------
+        HashMap<String, String> image_params = new HashMap<String, String>();       // optional image params
+//        image_params.put("iscase", "true");         // case sensitive captcha
+//        image_params.put("isphrase", "true");       // text contains at least one space (phrase)
+//        image_params.put("ismath", "true");         // instructs worker that a math captcha has to be solved
+//        image_params.put("alphanumeric", "2");      // 1 - digits only, 2 - letters only
+//        image_params.put("minlength", "1");         // captcha text length (minimum)
+//        image_params.put("maxlength", "8");         // captcha text length (maximum)
+
         System.out.println("Waiting for captcha to be solved ...");
-        String captcha_text = i.solve_captcha("http://example.com/captcha.jpg", false);
+        String captcha_text = i.solve_captcha("/home/user/captcha.jpg", image_params);
         System.out.println(String.format("Captcha text: %s", captcha_text));
 
         // solve recaptcha
@@ -34,7 +39,7 @@ public class Example {
         // check: https://www.github.com/imagetyperz-api/imagetyperz-api-java on how to get page_url and googlekey
         // submit captcha first to get ID
         HashMap<String, String> d = new HashMap<String, String>();
-        d.put("page_url", "your_page_url");
+        d.put("page_url", "your_page_url");     // add --capy to the end of it to make it a capy captcha
         d.put("sitekey", "your_sitekey");
 //        d.put("type", "3");                 // optional
 //        d.put("v3_min_score", "0.1");       // optional

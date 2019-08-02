@@ -60,10 +60,17 @@ public class ImageTyperzAPI {
         this._password = password;
     }
     // solve normal captcha
-    public String solve_captcha(String captcha_path, boolean case_sensitive) throws Exception {
+    public String solve_captcha(String captcha_path, HashMap<String, String> optional_parameters) throws Exception {
         // file exists, create params of request
         String url = "";
         Map<String,Object> params = new LinkedHashMap<>();
+
+        // add optional parameters
+        if(optional_parameters.size() > 0){
+            for (String key : optional_parameters.keySet()) {
+                params.put(key, optional_parameters.get(key));
+            }
+        }
 
         String image_data = "";
 
@@ -102,7 +109,6 @@ public class ImageTyperzAPI {
         }
 
         params.put("action", "UPLOADCAPTCHA");
-        params.put("chkCase", (case_sensitive) ? 1 : 0);
         params.put("file", image_data);
 
         // affiliate

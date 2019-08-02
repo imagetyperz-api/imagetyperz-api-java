@@ -255,8 +255,8 @@ public class CommandLineController {
                 String captcha_file = this._args.get_captcha_file();
                 if(captcha_file.isEmpty())
                     throw new Exception("Invalid captcha file");
-                boolean cs = this._args.is_case_sensitive();
-                String resp = i.solve_captcha(captcha_file, cs);
+                //boolean cs = this._args.is_case_sensitive();
+                String resp = i.solve_captcha(captcha_file, new HashMap<>());
                 this.show_output(resp);
                 break;
             case "2":

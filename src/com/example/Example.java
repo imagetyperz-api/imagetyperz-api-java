@@ -39,7 +39,7 @@ public class Example {
         // check: https://www.github.com/imagetyperz-api/imagetyperz-api-java on how to get page_url and googlekey
         // submit captcha first to get ID
         HashMap<String, String> d = new HashMap<String, String>();
-        d.put("page_url", "your_page_url");     // add --capy to the end of it to make it a capy captcha
+        d.put("page_url", "your_page_url");   // add --capy or --hcaptcha at the end, to submit capy or hCaptcha
         d.put("sitekey", "your_sitekey");
 //        d.put("type", "3");                 // optional
 //        d.put("v3_min_score", "0.1");       // optional

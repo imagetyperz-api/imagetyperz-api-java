@@ -46,6 +46,7 @@ public class Example {
 //        d.put("v3_action", "homepage");     // optional
 //        d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
 //        d.put("user_agent", "Your user agent"); // optional
+//        d.put("data-s", "recaptcha data-s value"); // optional
         String captcha_id = i.submit_recaptcha(d);
         System.out.println("Waiting for recaptcha to be solved ...");
         while(i.in_progress(captcha_id))

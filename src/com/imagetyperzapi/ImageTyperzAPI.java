@@ -191,7 +191,7 @@ public class ImageTyperzAPI {
         if (d.containsKey("type")) params.put("recaptchatype", d.get("type"));
         if (d.containsKey("v3_action")) params.put("captchaaction", d.get("v3_action"));
         if (d.containsKey("v3_min_score")) params.put("score", d.get("v3_min_score"));
-
+        if (d.containsKey("data-s")) params.put("data-s", d.get("data-s"));
         // do request
         String response = Utils.post(url, params, USER_AGENT);
 

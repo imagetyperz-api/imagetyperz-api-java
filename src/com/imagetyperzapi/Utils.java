@@ -8,11 +8,20 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by icebox on 23/05/17.
  */
 public class Utils {
+    public static void print_response(HashMap<String, String> response) {
+        System.out.println("Response");
+        System.out.println("--------------------------------");
+        for (Map.Entry<String, String> entry : response.entrySet()) {
+            System.out.println(String.format("  \"%s\" - \"%s\"", entry.getKey(), entry.getValue()));
+        }
+        System.out.println("--------------------------------");
+    }
     public static String map_to_url(HashMap<String, String> map){
         String s = "";
         for (String key : map.keySet()) {

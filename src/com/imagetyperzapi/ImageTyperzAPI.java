@@ -1,47 +1,41 @@
 package com.imagetyperzapi;
 
 import java.io.File;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
+
 import org.json.*;
 
 /**
  * Created by icebox on 22/05/17.
  */
 public class ImageTyperzAPI {
-    // consts
-    private static String CAPTCHA_ENDPOINT = "http://captchatypers.com/Forms/UploadFileAndGetTextNEW.ashx";
-    private static String RECAPTCHA_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadRecaptchaV1.ashx";
-    private static String RECAPTCHA_RETRIEVE_ENDPOINT = "http://captchatypers.com/captchaapi/GetRecaptchaText.ashx";
-    private static String BALANCE_ENDPOINT = "http://captchatypers.com/Forms/RequestBalance.ashx";
-    private static String BAD_IMAGE_ENDPOINT = "http://captchatypers.com/Forms/SetBadImage.ashx";
-    private static String PROXY_CHECK_ENDPOINT = "http://captchatypers.com/captchaAPI/GetReCaptchaTextJSON.ashx";
-    private static String GEETEST_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadGeeTest.ashx";
-    private static String GEETEST_RETRIEVE_ENDPOINT = "http://captchatypers.com/captchaapi/getrecaptchatext.ashx";
+    private final static String CAPTCHA_ENDPOINT = "http://captchatypers.com/Forms/UploadFileAndGetTextNEW.ashx";
+    private final static String RECAPTCHA_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadRecaptchaV1.ashx";
+    private final static String BALANCE_ENDPOINT = "http://captchatypers.com/Forms/RequestBalance.ashx";
+    private final static String BAD_IMAGE_ENDPOINT = "http://captchatypers.com/Forms/SetBadImage.ashx";
+    private final static String PROXY_CHECK_ENDPOINT = "http://captchatypers.com/captchaAPI/GetReCaptchaTextJSON.ashx";
+    private final static String GEETEST_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadGeeTest.ashx";
 
-    private static String CAPTCHA_ENDPOINT_CONTENT_TOKEN = "http://captchatypers.com/Forms/UploadFileAndGetTextNEWToken.ashx";
-    private static String CAPTCHA_ENDPOINT_URL_TOKEN = "http://captchatypers.com/Forms/FileUploadAndGetTextCaptchaURLToken.ashx";
-    private static String RECAPTCHA_SUBMIT_ENDPOINT_TOKEN = "http://captchatypers.com/captchaapi/UploadRecaptchaToken.ashx";
-    private static String RECAPTCHA_RETRIEVE_ENDPOINT_TOKEN = "http://captchatypers.com/captchaapi/GetRecaptchaTextToken.ashx";
-    private static String BALANCE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/RequestBalanceToken.ashx";
-    private static String BAD_IMAGE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/SetBadImageToken.ashx";
-    private static String PROXY_CHECK_ENDPOINT_TOKEN = "http://captchatypers.com/captchaAPI/GetReCaptchaTextTokenJSON.ashx";
-    private static String GEETEST_SUBMIT_ENDPOINT_TOKEN = "http://captchatypers.com/captchaapi/UploadGeeTestToken.ashx";
+    private final static String HCAPTCHA_ENDPOINT = "http://captchatypers.com/captchaapi/UploadHCaptchaUser.ashx";
+    private final static String CAPY_ENDPOINT = "http://captchatypers.com/captchaapi/UploadCapyCaptchaUser.ashx";
+    private final static String TIKTOK_ENDPOINT = "http://captchatypers.com/captchaapi/UploadTikTokCaptchaUser.ashx";
+    private final static String RETRIEVE_JSON_ENDPOINT = "http://captchatypers.com/captchaapi/GetCaptchaResponseJson.ashx";
 
-    private static String USER_AGENT = "JavaAPI1.0";      // user agent used in requests
+    private final static String CAPTCHA_ENDPOINT_CONTENT_TOKEN = "http://captchatypers.com/Forms/UploadFileAndGetTextNEWToken.ashx";
+    private final static String CAPTCHA_ENDPOINT_URL_TOKEN = "http://captchatypers.com/Forms/FileUploadAndGetTextCaptchaURLToken.ashx";
+    private final static String RECAPTCHA_SUBMIT_ENDPOINT_TOKEN = "http://captchatypers.com/captchaapi/UploadRecaptchaToken.ashx";
+    private final static String BALANCE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/RequestBalanceToken.ashx";
+    private final static String BAD_IMAGE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/SetBadImageToken.ashx";
+    private final static String PROXY_CHECK_ENDPOINT_TOKEN = "http://captchatypers.com/captchaAPI/GetReCaptchaTextTokenJSON.ashx";
+    private final static String GEETEST_SUBMIT_ENDPOINT_TOKEN = "http://captchatypers.com/captchaapi/UploadGeeTestToken.ashx";
 
-    private String _access_token;
+    private final static String USER_AGENT = "JavaAPI1.0";      // user agent used in requests
+
+    private final String _access_token;
     private String _username;
     private String _password;
     private String _affiliate_id = "0";
-
-    private Captcha _captcha;
-    private Recaptcha _recaptcha;
-    private Geetest _geetest;
-
-    private String _error = "";
 
     public ImageTyperzAPI(String access_token)
     {
@@ -53,14 +47,8 @@ public class ImageTyperzAPI {
         this._access_token = access_token;
         this._affiliate_id = affiliateid;
     }
-    // Set username and password - old authentication method, token should be used though
-    public void set_user_and_password(String user, String password)
-    {
-        this._username = user;
-        this._password = password;
-    }
-    // solve normal captcha
-    public String solve_captcha(String captcha_path, HashMap<String, String> optional_parameters) throws Exception {
+
+    public String submit_image(String captcha_path, HashMap<String, String> optional_parameters) throws Exception {
         // file exists, create params of request
         String url = "";
         Map<String,Object> params = new LinkedHashMap<>();
@@ -124,7 +112,6 @@ public class ImageTyperzAPI {
         if(i != -1)     // it's an error
         {
             String resp_err = response.substring(6, response.length()).trim();
-            this._error = resp_err;         // save last error
             throw new Exception(resp_err);
         }
 
@@ -133,13 +120,9 @@ public class ImageTyperzAPI {
         {
             response = response.replace("Uploading file...","");
         }
-        Captcha c = new Captcha(response);
-        this._captcha = c;      // save captcha to obj
-
-        return this._captcha.text();
+        return response.split(Pattern.quote("|"))[0];
     }
 
-    // Submit recaptcha with params
     public String submit_recaptcha(HashMap<String, String> d) throws Exception {
         String page_url = d.get("page_url");
         String sitekey = d.get("sitekey");
@@ -200,58 +183,12 @@ public class ImageTyperzAPI {
         if(i != -1)     // it's an error
         {
             String resp_err = response.substring(6, response.length()).trim();
-            this._error = resp_err;         // save last error
             throw new Exception(resp_err);
         }
-
-        // create recaptcha object with received captcha ID
-        Recaptcha rc = new Recaptcha(response);
-        this._recaptcha = rc;       // save to obj
 
         return response;        // return response
     }
 
-    // Retrieve captcha response using captcha ID
-    public String retrieve_captcha(String captcha_id) throws Exception {
-        // file exists, create params of request
-        String url = "";
-        Map<String,Object> params = new LinkedHashMap<>();
-        params.put("action", "GETTEXT");
-        params.put("captchaid", captcha_id);
-
-        if(this._username != null && !this._username.isEmpty())
-        {
-            params.put("username", this._username);
-            params.put("password", this._password);
-            url = RECAPTCHA_RETRIEVE_ENDPOINT;
-        }
-        else
-        {
-            params.put("token", this._access_token);
-            url = RECAPTCHA_RETRIEVE_ENDPOINT_TOKEN;
-        }
-
-        // do request
-        String response = Utils.post(url, params, USER_AGENT);
-
-        // check if error
-        int i = response.indexOf("ERROR:");
-        if(i != -1)     // it's an error
-        {
-            String resp_err = response.substring(6, response.length()).trim();
-            if(response.indexOf("NOT_DECODED") == -1) {     // save it as obj error, only if it's not, NOT_DECODED
-                this._error = resp_err;         // save last error
-            }
-            throw new Exception(resp_err);
-        }
-
-        // we got a good response at this point, save it to recapthca obj and return it
-        this._recaptcha = new Recaptcha(captcha_id);
-        this._recaptcha.set_response(response);
-        return response;
-    }
-
-    // Submit geetest with params
     public String submit_geetest(HashMap<String, String> d) throws Exception {
         // check vars first
         if(!d.containsKey("domain")) throw new Exception("domain variable is missing");
@@ -292,72 +229,164 @@ public class ImageTyperzAPI {
         if(i != -1)     // it's an error
         {
             String resp_err = response.substring(6, response.length()).trim();
-            this._error = resp_err;         // save last error
             throw new Exception(resp_err);
         }
-
-        // create recaptcha object with received captcha ID
-        this._geetest = new Geetest(response);
 
         return response;        // return response
     }
 
-    // Retrieve geetest response using captcha ID
-    public HashMap<String, String> retrieve_geetest(String captcha_id) throws Exception {
-        // file exists, create params of request
-        String url = "";
+    public String submit_capy(HashMap<String, String> d) throws Exception {
         Map<String,Object> params = new LinkedHashMap<>();
-        params.put("action", "GETTEXT");
-        params.put("captchaid", captcha_id);
+        // check vars first
+        if(!d.containsKey("page_url")) throw new Exception("page_url variable is missing");
+        if(!d.containsKey("sitekey")) throw new Exception("sitekey variable is missing");
+
+        // create params with request
+        params.put("action", "UPLOADCAPTCHA");
+        params.put("pageurl", d.get("page_url"));
+        params.put("sitekey", d.get("sitekey"));
+        params.put("captchatype", "12");
 
         if(this._username != null && !this._username.isEmpty())
         {
             params.put("username", this._username);
             params.put("password", this._password);
-            url = GEETEST_RETRIEVE_ENDPOINT;
         }
-        else
-        {
-            params.put("token", this._access_token);
-            url = GEETEST_RETRIEVE_ENDPOINT;
-        }
+        else params.put("token", this._access_token);
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
 
         // do request
-        String response = Utils.post(url, params, USER_AGENT);
+        String response = Utils.post(CAPY_ENDPOINT, params, USER_AGENT);
 
         // check if error
         int i = response.indexOf("ERROR:");
         if(i != -1)     // it's an error
         {
             String resp_err = response.substring(6, response.length()).trim();
-            if(response.indexOf("NOT_DECODED") == -1) {     // save it as obj error, only if it's not, NOT_DECODED
-                this._error = resp_err;         // save last error
-            }
+            throw new Exception(resp_err);
+        }
+        JSONObject jsobj = new JSONObject(response.substring(1, response.length() - 1));
+        return jsobj.getString("CaptchaId");        // return response
+    }
+
+    public String submit_hcaptcha(HashMap<String, String> d) throws Exception {
+        Map<String,Object> params = new LinkedHashMap<>();
+        // check vars first
+        if(!d.containsKey("page_url")) throw new Exception("page_url variable is missing");
+        if(!d.containsKey("sitekey")) throw new Exception("sitekey variable is missing");
+
+        // create params with request
+        params.put("action", "UPLOADCAPTCHA");
+        params.put("pageurl", d.get("page_url"));
+        params.put("sitekey", d.get("sitekey"));
+        params.put("captchatype", "11");
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            params.put("username", this._username);
+            params.put("password", this._password);
+        }
+        else params.put("token", this._access_token);
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
+
+        // do request
+        String response = Utils.post(HCAPTCHA_ENDPOINT, params, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            throw new Exception(resp_err);
+        }
+        JSONObject jsobj = new JSONObject(response.substring(1, response.length() - 1));
+        return jsobj.getString("CaptchaId");        // return response
+    }
+
+    public String submit_tiktok(HashMap<String, String> d) throws Exception {
+        Map<String,Object> params = new LinkedHashMap<>();
+        // check vars first
+        if(!d.containsKey("page_url")) throw new Exception("page_url variable is missing");
+        if(!d.containsKey("cookie_input")) throw new Exception("cookie_input variable is missing");
+
+        // create params with request
+        params.put("action", "UPLOADCAPTCHA");
+        params.put("pageurl", d.get("page_url"));
+        params.put("cookie_input", d.get("cookie_input"));
+        params.put("captchatype", "10");
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            params.put("username", this._username);
+            params.put("password", this._password);
+        }
+        else params.put("token", this._access_token);
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
+
+        // do request
+        String response = Utils.post(TIKTOK_ENDPOINT, params, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            throw new Exception(resp_err);
+        }
+        JSONObject jsobj = new JSONObject(response.substring(1, response.length() - 1));
+        return jsobj.getString("CaptchaId");        // return response
+    }
+
+    // retrieve captcha response (works with all types)
+    public HashMap<String, String> retrieve_response(String captcha_id) throws Exception {
+        Map<String,Object> d = new LinkedHashMap<>();
+        d.put("action", "GETTEXT");
+        d.put("captchaid", captcha_id);
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            d.put("username", this._username);
+            d.put("password", this._password);
+        }
+        else
+        {
+            d.put("token", this._access_token);
+        }
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) {
+            d.put("affiliateid", this._affiliate_id);
+        }
+
+        // do request
+        String response = Utils.post(RETRIEVE_JSON_ENDPOINT, d, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
             throw new Exception(resp_err);
         }
 
-        // we got a good response at this point, save it to recapthca obj and return it
-        this._geetest.set_response(response);
-        return this._geetest.response();
-    }
+        response = response.substring(1, response.length() - 1);
+        JSONObject jsobj = new JSONObject(response);
+        String status = jsobj.getString("Status");
+        if (status.equals("Pending")) return null;
+        HashMap<String, String> m = new HashMap<String, String>();
+        Iterator<String> keys = jsobj.keys();
 
-    // Check if recaptcha still in progress of solving
-    public boolean in_progress(String captcha_id) throws Exception {
-        try
-        {
-            if(this._geetest != null) this.retrieve_geetest(captcha_id);
-            else this.retrieve_captcha(captcha_id);
-            return false;       // no error, we're good
+        while(keys.hasNext()) {
+            String key = keys.next();
+            m.put(key, jsobj.getString(key));
         }
-        catch(Exception ex)
-        {
-            if(ex.getMessage().contains("NOT_DECODED"))
-            {
-                return true;
-            }
-            // otherwise throw exception (if different error)
-            throw ex;
-        }
+        return m;
     }
 
     // Get account balance
@@ -388,7 +417,6 @@ public class ImageTyperzAPI {
         if(i != -1)     // it's an error
         {
             String resp_err = response.substring(6, response.length()).trim();
-            this._error = resp_err;         // save last error
             throw new Exception(resp_err);
         }
 
@@ -424,7 +452,6 @@ public class ImageTyperzAPI {
         if(i != -1)     // it's an error
         {
             String resp_err = response.substring(6, response.length()).trim();
-            this._error = resp_err;         // save last error
             throw new Exception(resp_err);
         }
 
@@ -461,7 +488,6 @@ public class ImageTyperzAPI {
         // check for error
         if(jsobj.has("Error")){
             String err = jsobj.getString("Error");
-            this._error = err;
             throw new Exception(err);
         }
 
@@ -474,7 +500,6 @@ public class ImageTyperzAPI {
         // check if we have a result or not
         if(result.trim().equals("")){
             String err = "captcha not completed yet";
-            this._error = err;
             throw new Exception(err);
         }
         // check if client proxy was submitted
@@ -491,49 +516,5 @@ public class ImageTyperzAPI {
         }
 
         return "no, reason: unknown";
-    }
-
-    // Get last solved captcha text
-    public String captcha_text()
-    {
-        if(this._captcha != null)
-        {
-            return this._captcha.text();
-        }
-        return "";      // return nothing if not initialized yet
-    }
-    // Get last solved captcha id
-    public String captcha_id()
-    {
-        if(this._captcha != null)
-        {
-            return this._captcha.captcha_id();
-        }
-        return "";      // return nothing if not initialized yet
-    }
-
-    // Get last solved recaptcha response
-    public String recaptcha_response()
-    {
-        if(this._recaptcha != null)
-        {
-            return this._recaptcha.response();
-        }
-        return "";      // return nothing if not initialized yet
-    }
-    // Get last solved recaptcha id
-    public String recaptcha_id()
-    {
-        if(this._recaptcha != null)
-        {
-            return this._recaptcha.captcha_id();
-        }
-        return "";      // return nothing if not initialized yet
-    }
-
-    // Return last error
-    public String error()
-    {
-        return this._error;
     }
 }

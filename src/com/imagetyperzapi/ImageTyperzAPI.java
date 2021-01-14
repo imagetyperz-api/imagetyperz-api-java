@@ -12,6 +12,7 @@ import org.json.*;
 public class ImageTyperzAPI {
     private final static String CAPTCHA_ENDPOINT = "http://captchatypers.com/Forms/UploadFileAndGetTextNEW.ashx";
     private final static String RECAPTCHA_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadRecaptchaV1.ashx";
+    private final static String RECAPTCHA_ENTERPRISE_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadRecaptchaEnt.ashx";
     private final static String BALANCE_ENDPOINT = "http://captchatypers.com/Forms/RequestBalance.ashx";
     private final static String BAD_IMAGE_ENDPOINT = "http://captchatypers.com/Forms/SetBadImage.ashx";
     private final static String PROXY_CHECK_ENDPOINT = "http://captchatypers.com/captchaAPI/GetReCaptchaTextJSON.ashx";
@@ -170,11 +171,17 @@ public class ImageTyperzAPI {
         // user agent
         if (d.containsKey("user_agent")) params.put("useragent", d.get("user_agent"));
 
-        // v3
-        if (d.containsKey("type")) params.put("recaptchatype", d.get("type"));
+        // type / enterprise
+        if (d.containsKey("type")) {
+            params.put("recaptchatype", d.get("type"));
+            // enterprise
+            if (d.get("type").equals("4") || d.get("type").equals("5")) url = RECAPTCHA_ENTERPRISE_SUBMIT_ENDPOINT;
+            if (d.get("type").equals("5")) params.put("enterprise_type", "v3");
+        }
         if (d.containsKey("v3_action")) params.put("captchaaction", d.get("v3_action"));
         if (d.containsKey("v3_min_score")) params.put("score", d.get("v3_min_score"));
         if (d.containsKey("data-s")) params.put("data-s", d.get("data-s"));
+        if (d.containsKey("cookie_input")) params.put("cookie_input", d.get("cookie_input"));
         // do request
         String response = Utils.post(url, params, USER_AGENT);
 

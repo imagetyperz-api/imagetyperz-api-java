@@ -21,12 +21,22 @@ public class TestRecaptcha {
         HashMap<String, String> d = new HashMap<String, String>();
         d.put("page_url", "https://your-site.com");
         d.put("sitekey", "7LrGJmcUABBAALFtIb_FxC0LXm_GwOLyJAfbbUCL");
-//        d.put("type", "3");                 // optional
-//        d.put("v3_min_score", "0.1");       // optional
-//        d.put("v3_action", "homepage");     // optional
-//        d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
-//        d.put("user_agent", "Your user agent"); // optional
-//        d.put("data-s", "recaptcha data-s value"); // optional
+        // reCAPTCHA type(s) - optional, defaults to 1
+        // ---------------------------------------------
+        // 1 - v2
+        // 2 - invisible
+        // 3 - v3
+        // 4 - enterprise v2
+        // 5 - enterprise v3
+        //
+        // d.put("type", "1");                 // optional
+        //
+        // d.put("v3_min_score", "0.1");       // optional
+        // d.put("v3_action", "homepage");     // optional
+        // d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+        // d.put("user_agent", "Your user agent"); // optional
+        // d.put("data-s", "recaptcha data-s value"); // optional
+        // d.put("cookie_input", "a=b;c=d");   // optional
         String captcha_id = i.submit_recaptcha(d);
         System.out.println("Waiting for captcha to be solved ...");
         HashMap<String, String> response = null;

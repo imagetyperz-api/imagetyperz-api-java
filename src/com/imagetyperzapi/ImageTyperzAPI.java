@@ -21,6 +21,7 @@ public class ImageTyperzAPI {
     private final static String HCAPTCHA_ENDPOINT = "http://captchatypers.com/captchaapi/UploadHCaptchaUser.ashx";
     private final static String CAPY_ENDPOINT = "http://captchatypers.com/captchaapi/UploadCapyCaptchaUser.ashx";
     private final static String TIKTOK_ENDPOINT = "http://captchatypers.com/captchaapi/UploadTikTokCaptchaUser.ashx";
+    private final static String FUNCAPTCHA_ENDPOINT = "http://captchatypers.com/captchaapi/UploadFunCaptcha.ashx";
     private final static String RETRIEVE_JSON_ENDPOINT = "http://captchatypers.com/captchaapi/GetCaptchaResponseJson.ashx";
 
     private final static String CAPTCHA_ENDPOINT_CONTENT_TOKEN = "http://captchatypers.com/Forms/UploadFileAndGetTextNEWToken.ashx";
@@ -218,6 +219,10 @@ public class ImageTyperzAPI {
             url = GEETEST_SUBMIT_ENDPOINT_TOKEN;
         }
 
+        // add proxy
+        if(d.containsKey("proxy")){
+            d.put("proxytype", "HTTP");
+        }
 
         // affiliate
         if(!this._affiliate_id.equals("0")) {
@@ -261,6 +266,12 @@ public class ImageTyperzAPI {
         }
         else params.put("token", this._access_token);
 
+        // proxy
+        if(d.containsKey("proxy")){
+            params.put("proxy", d.get("proxy"));                 // with proxy
+            params.put("proxytype", "HTTP");
+        }
+
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
 
@@ -296,6 +307,12 @@ public class ImageTyperzAPI {
             params.put("password", this._password);
         }
         else params.put("token", this._access_token);
+
+        // proxy
+        if(d.containsKey("proxy")){
+            params.put("proxy", d.get("proxy"));                 // with proxy
+            params.put("proxytype", "HTTP");
+        }
 
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
@@ -333,11 +350,68 @@ public class ImageTyperzAPI {
         }
         else params.put("token", this._access_token);
 
+        // proxy
+        if(d.containsKey("proxy")){
+            params.put("proxy", d.get("proxy"));                 // with proxy
+            params.put("proxytype", "HTTP");
+        }
+
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
 
         // do request
         String response = Utils.post(TIKTOK_ENDPOINT, params, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            throw new Exception(resp_err);
+        }
+        JSONObject jsobj = new JSONObject(response.substring(1, response.length() - 1));
+        return jsobj.getString("CaptchaId");        // return response
+    }
+
+    public String submit_funcaptcha(HashMap<String, String> d) throws Exception {
+        Map<String,Object> params = new LinkedHashMap<>();
+        // check vars first
+        if(!d.containsKey("page_url")) throw new Exception("page_url variable is missing");
+        if(!d.containsKey("sitekey")) throw new Exception("sitekey variable is missing");
+
+        // create params with request
+        params.put("action", "UPLOADCAPTCHA");
+        params.put("pageurl", d.get("page_url"));
+        params.put("sitekey", d.get("sitekey"));
+        params.put("captchatype", "13");
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            params.put("username", this._username);
+            params.put("password", this._password);
+        }
+        else params.put("token", this._access_token);
+
+        // s_url
+        if(d.containsKey("s_url")){
+            params.put("surl", d.get("s_url"));
+        }
+        // extra data
+        if(d.containsKey("data")){
+            params.put("data", d.get("data"));
+        }
+
+        // proxy
+        if(d.containsKey("proxy")){
+            params.put("proxy", d.get("proxy"));                 // with proxy
+            params.put("proxytype", "HTTP");
+        }
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
+
+        // do request
+        String response = Utils.post(FUNCAPTCHA_ENDPOINT, params, USER_AGENT);
 
         // check if error
         int i = response.indexOf("ERROR:");

@@ -172,6 +172,21 @@ d.put("cookie_input", "s_v_web_id:verify_kd6243o_fd449FX_FDGG_1x8E_8NiQ_fgrg9FEI
 String captcha_id = i.submit_tiktok(d);
 ```
 
+### FunCaptcha
+
+Requires page_url, sitekey and s_url
+
+```java
+HashMap<String, String> d = new HashMap<String, String>();
+d.put("page_url", "https://your-site.com");
+d.put("sitekey", "11111111-1111-1111-1111-111111111111");
+d.put("s_url", "https://api.arkoselabs.com");
+// d.put("data", "{\"a\": \"b\"}");   // optional, extra funcaptcha data in JSON format
+// d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+// d.put("user_agent", "Your user agent"); // optional
+String captcha_id = i.submit_funcaptcha(d);
+```
+
 ## Retrieve response
 
 Regardless of the captcha type (and method) used in submission of the captcha, this method is used

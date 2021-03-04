@@ -17,6 +17,7 @@ public class Example {
             // TestCapy.run();
             // TestHcaptcha.run();
             // TestTiktok.run();
+            // TestFuncaptcha.run();
         }
         catch (Exception ex)
         {

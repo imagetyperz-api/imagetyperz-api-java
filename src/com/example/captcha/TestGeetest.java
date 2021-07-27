@@ -22,8 +22,9 @@ public class TestGeetest {
         d.put("domain", "https://your-site.com");
         d.put("challenge", "eea8d7d1bd1a933d72a9eda8af6d15d3");
         d.put("gt", "1a761081b1114c388092c8e2fd7f58bc");
-//        d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
-//        d.put("user_agent", "Your user agent"); // optional
+        // d.put("api_server", "api.geetest.com"); // geetest domain - optional
+        // d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+        // d.put("user_agent", "Your user agent"); // optional
         String captcha_id = i.submit_geetest(d);
         System.out.println("Waiting for captcha to be solved ...");
         HashMap<String, String> response = null;

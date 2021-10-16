@@ -313,6 +313,10 @@ public class ImageTyperzAPI {
             params.put("proxy", d.get("proxy"));                 // with proxy
             params.put("proxytype", "HTTP");
         }
+        // invisible
+        if(d.containsKey("invisible")){
+            params.put("invisible", "1");
+        }
 
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);

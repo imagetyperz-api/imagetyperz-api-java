@@ -142,6 +142,7 @@ Requires page_url and sitekey
 HashMap<String, String> d = new HashMap<String, String>();
 d.put("page_url", "https://your-site.com");
 d.put("sitekey", "8c7062c7-cae6-4e12-96fb-303fbec7fe4f");
+// d.put("invisible", "1");              // if captcha is invisible - optional
 // d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
 // d.put("user_agent", "Your user agent"); // optional
 String captcha_id = i.submit_hcaptcha(d);

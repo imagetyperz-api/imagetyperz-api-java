@@ -31,6 +31,7 @@ public class ImageTyperzAPI {
     private final static String BAD_IMAGE_ENDPOINT_TOKEN = "http://captchatypers.com/Forms/SetBadImageToken.ashx";
     private final static String PROXY_CHECK_ENDPOINT_TOKEN = "http://captchatypers.com/captchaAPI/GetReCaptchaTextTokenJSON.ashx";
     private final static String GEETEST_SUBMIT_ENDPOINT_TOKEN = "http://captchatypers.com/captchaapi/UploadGeeTestToken.ashx";
+    private final static String GEETEST_V4_SUBMIT_ENDPOINT = "http://www.captchatypers.com/captchaapi/UploadGeeTestV4.ashx";
 
     private final static String USER_AGENT = "JavaAPI1.0";      // user agent used in requests
 
@@ -247,6 +248,54 @@ public class ImageTyperzAPI {
         return response;        // return response
     }
 
+    public String submit_geetest_v4(HashMap<String, String> d) throws Exception {
+        // check vars first
+        if(!d.containsKey("domain")) throw new Exception("domain variable is missing");
+        if(!d.containsKey("geetestid")) throw new Exception("geetestid variable is missing");
+
+        // create params with request
+        String url = "";
+        d.put("action", "UPLOADCAPTCHA");
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            d.put("username", this._username);
+            d.put("password", this._password);
+        }
+        else
+        {
+            d.put("token", this._access_token);
+        }
+        url = GEETEST_V4_SUBMIT_ENDPOINT;
+
+        // add proxy
+        if(d.containsKey("proxy")){
+            d.put("proxytype", "HTTP");
+        }
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) {
+            d.put("affiliateid", this._affiliate_id);
+        }
+
+        String params = Utils.map_to_url(d);
+        params = params.substring(1, params.length());
+        url = url + "?" + params;
+
+        // do request
+        String response = Utils.get(url, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            throw new Exception(resp_err);
+        }
+
+        return response;        // return response
+    }
+
     public String submit_capy(HashMap<String, String> d) throws Exception {
         Map<String,Object> params = new LinkedHashMap<>();
         // check vars first
@@ -317,6 +366,7 @@ public class ImageTyperzAPI {
         if(d.containsKey("invisible")){
             params.put("invisible", "1");
         }
+
 
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);

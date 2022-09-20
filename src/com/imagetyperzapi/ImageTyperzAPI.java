@@ -17,6 +17,7 @@ public class ImageTyperzAPI {
     private final static String BAD_IMAGE_ENDPOINT = "http://captchatypers.com/Forms/SetBadImage.ashx";
     private final static String PROXY_CHECK_ENDPOINT = "http://captchatypers.com/captchaAPI/GetReCaptchaTextJSON.ashx";
     private final static String GEETEST_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadGeeTest.ashx";
+    private final static String TASK_ENDPOINT = "http://captchatypers.com/captchaapi/UploadCaptchaTask.ashx";
 
     private final static String HCAPTCHA_ENDPOINT = "http://captchatypers.com/captchaapi/UploadHCaptchaUser.ashx";
     private final static String CAPY_ENDPOINT = "http://captchatypers.com/captchaapi/UploadCapyCaptchaUser.ashx";
@@ -320,6 +321,10 @@ public class ImageTyperzAPI {
             params.put("proxy", d.get("proxy"));                 // with proxy
             params.put("proxytype", "HTTP");
         }
+        // user agent
+        if(d.containsKey("user_agent")){
+            params.put("useragent", d.get("user_agent"));                 // with proxy
+        }
 
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
@@ -362,11 +367,18 @@ public class ImageTyperzAPI {
             params.put("proxy", d.get("proxy"));                 // with proxy
             params.put("proxytype", "HTTP");
         }
+        // user agent
+        if(d.containsKey("user_agent")){
+            params.put("useragent", d.get("user_agent"));                 // with proxy
+        }
         // invisible
         if(d.containsKey("invisible")){
             params.put("invisible", "1");
         }
-
+        // enterprise
+        if(d.containsKey("HcaptchaEnterprise")){
+            params.put("HcaptchaEnterprise", d.get("HcaptchaEnterprise"));
+        }
 
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
@@ -408,6 +420,10 @@ public class ImageTyperzAPI {
         if(d.containsKey("proxy")){
             params.put("proxy", d.get("proxy"));                 // with proxy
             params.put("proxytype", "HTTP");
+        }
+        // user agent
+        if(d.containsKey("user_agent")){
+            params.put("useragent", d.get("user_agent"));                 // with proxy
         }
 
         // affiliate
@@ -461,11 +477,67 @@ public class ImageTyperzAPI {
             params.put("proxytype", "HTTP");
         }
 
+        // user agent
+        if(d.containsKey("user_agent")){
+            params.put("useragent", d.get("user_agent"));                 // with proxy
+        }
+
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
 
         // do request
         String response = Utils.post(FUNCAPTCHA_ENDPOINT, params, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            throw new Exception(resp_err);
+        }
+        JSONObject jsobj = new JSONObject(response.substring(1, response.length() - 1));
+        return jsobj.getString("CaptchaId");        // return response
+    }
+
+    public String submit_task(HashMap<String, String> d) throws Exception {
+        Map<String,Object> params = new LinkedHashMap<>();
+        // check vars first
+        if(!d.containsKey("page_url")) throw new Exception("page_url variable is missing");
+        if(!d.containsKey("template_name")) throw new Exception("template_name variable is missing");
+
+        // create params with request
+        params.put("action", "UPLOADCAPTCHA");
+        params.put("pageurl", d.get("page_url"));
+        params.put("captchatype", "16");
+        params.put("template_name", d.get("template_name"));
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            params.put("username", this._username);
+            params.put("password", this._password);
+        }
+        else params.put("token", this._access_token);
+
+        // variables
+        if(d.containsKey("variables")){
+            params.put("variables", d.get("variables"));
+        }
+
+        // proxy
+        if(d.containsKey("proxy")){
+            params.put("proxy", d.get("proxy"));                 // with proxy
+            params.put("proxytype", "HTTP");
+        }
+        // user agent
+        if(d.containsKey("user_agent")){
+            params.put("useragent", d.get("user_agent"));                 // with proxy
+        }
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
+
+        // do request
+        String response = Utils.post(TASK_ENDPOINT, params, USER_AGENT);
 
         // check if error
         int i = response.indexOf("ERROR:");

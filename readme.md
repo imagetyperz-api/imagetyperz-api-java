@@ -154,6 +154,8 @@ The response of this captcha after completion are 5 parameters:
 HashMap<String, String> d = new HashMap<String, String>();
 d.put("domain", "https://example.com");
 d.put("geetestid", "647f5ed2ed8acb4be36784e01556bb71");
+// d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+// d.put("user_agent", "Your user agent"); // optional
 String captcha_id = i.submit_geetest_v4(d);
 ```
 
@@ -168,7 +170,13 @@ Requires page_url and sitekey
 HashMap<String, String> d = new HashMap<String, String>();
 d.put("page_url", "https://your-site.com");
 d.put("sitekey", "8c7062c7-cae6-4e12-96fb-303fbec7fe4f");
-// d.put("invisible", "1");              // if captcha is invisible - optional
+// if invisible hcaptcha - optional
+// d.put("invisible", "1");
+
+// extra parameters, useful for enterprise
+// submit userAgent from requests too, when this is used
+// d.put("HcaptchaEnterprise", "{\"rqdata\": \"value taken from web requests\"}");
+
 // d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
 // d.put("user_agent", "Your user agent"); // optional
 String captcha_id = i.submit_hcaptcha(d);
@@ -214,6 +222,20 @@ d.put("s_url", "https://api.arkoselabs.com");
 // d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
 // d.put("user_agent", "Your user agent"); // optional
 String captcha_id = i.submit_funcaptcha(d);
+```
+
+### Task
+
+Requires template_name, page_url and usually variables
+
+```java
+HashMap<String, String> d = new HashMap<String, String>();
+d.put("template_name", "Login test page");
+d.put("page_url", "https://imagetyperz.net/automation/login");
+d.put("variables", "{\"username\": \"abc\", \"password\": \"paZZW0rd\"}");
+// d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+// d.put("user_agent", "Your user agent"); // optional
+String captcha_id = i.submit_task(d);
 ```
 
 ## Retrieve response

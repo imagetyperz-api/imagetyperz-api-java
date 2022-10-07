@@ -26,6 +26,11 @@ public class TestTask {
         // d.put("user_agent", "Your user agent"); // optional
         String captcha_id = i.submit_task(d);
         System.out.println("Waiting for captcha to be solved ...");
+
+        // send pushVariable - update of variable while task is running (e.g 2FA code)
+        // String code = "24323";
+        // i.task_push_variables(captcha_id, "{\"twofactor_code\": \"" + code + "\"}");
+
         HashMap<String, String> response = null;
         while (response == null) {
             Thread.sleep(10000);

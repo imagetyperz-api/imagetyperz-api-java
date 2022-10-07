@@ -18,6 +18,7 @@ public class ImageTyperzAPI {
     private final static String PROXY_CHECK_ENDPOINT = "http://captchatypers.com/captchaAPI/GetReCaptchaTextJSON.ashx";
     private final static String GEETEST_SUBMIT_ENDPOINT = "http://captchatypers.com/captchaapi/UploadGeeTest.ashx";
     private final static String TASK_ENDPOINT = "http://captchatypers.com/captchaapi/UploadCaptchaTask.ashx";
+    private final static String TASK_PUSH_ENDPOINT = "http://captchatypers.com/CaptchaAPI/SaveCaptchaPush.ashx";
 
     private final static String HCAPTCHA_ENDPOINT = "http://captchatypers.com/captchaapi/UploadHCaptchaUser.ashx";
     private final static String CAPY_ENDPOINT = "http://captchatypers.com/captchaapi/UploadCapyCaptchaUser.ashx";
@@ -548,6 +549,38 @@ public class ImageTyperzAPI {
         }
         JSONObject jsobj = new JSONObject(response.substring(1, response.length() - 1));
         return jsobj.getString("CaptchaId");        // return response
+    }
+
+    // push variables for task captcha
+    public String task_push_variables(String captcha_id, String pushVariables) throws Exception {
+        // create params of request
+        Map<String,Object> params = new LinkedHashMap<>();
+        params.put("action", "GETTEXT");
+        params.put("captchaid", captcha_id);
+        params.put("pushVariables", pushVariables);
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            params.put("username", this._username);
+            params.put("password", this._password);
+        }
+        else
+        {
+            params.put("token", this._access_token);
+        }
+
+        // do request
+        String response = Utils.post(TASK_PUSH_ENDPOINT, params, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            throw new Exception(resp_err);
+        }
+
+        return response;        // return response
     }
 
     // retrieve captcha response (works with all types)

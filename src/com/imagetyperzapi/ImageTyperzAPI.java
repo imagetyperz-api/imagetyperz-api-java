@@ -24,6 +24,7 @@ public class ImageTyperzAPI {
     private final static String CAPY_ENDPOINT = "http://captchatypers.com/captchaapi/UploadCapyCaptchaUser.ashx";
     private final static String TIKTOK_ENDPOINT = "http://captchatypers.com/captchaapi/UploadTikTokCaptchaUser.ashx";
     private final static String FUNCAPTCHA_ENDPOINT = "http://captchatypers.com/captchaapi/UploadFunCaptcha.ashx";
+    private final static String TURNSTILE_ENDPOINT = "http://captchatypers.com/captchaapi/Uploadturnstile.ashx";
     private final static String RETRIEVE_JSON_ENDPOINT = "http://captchatypers.com/captchaapi/GetCaptchaResponseJson.ashx";
 
     private final static String CAPTCHA_ENDPOINT_CONTENT_TOKEN = "http://captchatypers.com/Forms/UploadFileAndGetTextNEWToken.ashx";
@@ -182,6 +183,7 @@ public class ImageTyperzAPI {
             if (d.get("type").equals("4") || d.get("type").equals("5")) url = RECAPTCHA_ENTERPRISE_SUBMIT_ENDPOINT;
             if (d.get("type").equals("5")) params.put("enterprise_type", "v3");
         }
+        if (d.containsKey("domain")) params.put("domain", d.get("domain"));
         if (d.containsKey("v3_action")) params.put("captchaaction", d.get("v3_action"));
         if (d.containsKey("v3_min_score")) params.put("score", d.get("v3_min_score"));
         if (d.containsKey("data-s")) params.put("data-s", d.get("data-s"));
@@ -380,6 +382,10 @@ public class ImageTyperzAPI {
         if(d.containsKey("HcaptchaEnterprise")){
             params.put("HcaptchaEnterprise", d.get("HcaptchaEnterprise"));
         }
+        // domain
+        if(d.containsKey("domain")){
+            params.put("apiEndpoint", d.get("domain"));
+        }
 
         // affiliate
         if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
@@ -488,6 +494,63 @@ public class ImageTyperzAPI {
 
         // do request
         String response = Utils.post(FUNCAPTCHA_ENDPOINT, params, USER_AGENT);
+
+        // check if error
+        int i = response.indexOf("ERROR:");
+        if(i != -1)     // it's an error
+        {
+            String resp_err = response.substring(6, response.length()).trim();
+            throw new Exception(resp_err);
+        }
+        JSONObject jsobj = new JSONObject(response.substring(1, response.length() - 1));
+        return jsobj.getString("CaptchaId");        // return response
+    }
+
+    public String submit_turnstile(HashMap<String, String> d) throws Exception {
+        Map<String,Object> params = new LinkedHashMap<>();
+        // check vars first
+        if(!d.containsKey("page_url")) throw new Exception("page_url variable is missing");
+        if(!d.containsKey("sitekey")) throw new Exception("sitekey variable is missing");
+
+        // create params with request
+        params.put("action", "UPLOADCAPTCHA");
+        params.put("pageurl", d.get("page_url"));
+        params.put("sitekey", d.get("sitekey"));
+
+        if(this._username != null && !this._username.isEmpty())
+        {
+            params.put("username", this._username);
+            params.put("password", this._password);
+        }
+        else params.put("token", this._access_token);
+
+        // proxy
+        if(d.containsKey("proxy")){
+            params.put("proxy", d.get("proxy"));                 // with proxy
+            params.put("proxytype", "HTTP");
+        }
+        // user agent
+        if(d.containsKey("user_agent")){
+            params.put("useragent", d.get("user_agent"));                 // with proxy
+        }
+        // domain
+        if(d.containsKey("domain")){
+            params.put("apiEndpoint", d.get("domain"));                 // with proxy
+        }
+        // action
+        if(d.containsKey("action")){
+            params.put("taction", d.get("action"));                 // with proxy
+        }
+        // cdata
+        if(d.containsKey("cdata")){
+            params.put("data", d.get("cdata"));                 // with proxy
+        }
+
+        // affiliate
+        if(!this._affiliate_id.equals("0")) params.put("affiliateid", this._affiliate_id);
+
+        // do request
+        String response = Utils.post(TURNSTILE_ENDPOINT, params, USER_AGENT);
 
         // check if error
         int i = response.indexOf("ERROR:");

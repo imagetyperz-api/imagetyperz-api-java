@@ -7,7 +7,7 @@ import com.imagetyperzapi.Utils;
 import java.util.HashMap;
 
 
-public class TestGeetest {
+public class TestTurnstile {
     // test_api API method
     public static void run() throws Exception {
         // get access token from: http://www.imagetyperz.com/Forms/ClientHome.aspx
@@ -15,17 +15,18 @@ public class TestGeetest {
 
         // get balance
         String balance = i.account_balance();
-        System.out.println(String.format("Balance: %s", balance));
+        System.out.printf("Balance: %s%n", balance);
 
         // solve captcha
         HashMap<String, String> d = new HashMap<String, String>();
-        d.put("domain", "https://your-site.com");
-        d.put("challenge", "eea8d7d1bd1a933d72a9eda8af6d15d3");
-        d.put("gt", "1a761081b1114c388092c8e2fd7f58bc");
-//        d.put("api_server", "api.geetest.com"); // geetest domain - optional
-//        d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
-//        d.put("user_agent", "Your user agent"); // optional
-        String captcha_id = i.submit_geetest(d);
+        d.put("page_url", "https://your-site.com");
+        d.put("sitekey", "0x4ABBBBAABrfvW5vKbx11FZ");
+//      d.put("domain", "challenges.cloudflare.com"); // domain used in loading turnstile interface, default: challenges.cloudflare.com - optional
+//      d.put("action", "homepage");                  // used in loading turnstile interface, similar to reCAPTCHA - optional
+//      d.put("cdata", "your cdata");                 // used in loading turnstile interface - optional
+//      d.put("proxy", "126.45.34.53:123"); // or with auth 126.45.34.53:123:user:pass - optional
+//      d.put("user_agent", "Your user agent"); // optional
+        String captcha_id = i.submit_turnstile(d);
         System.out.println("Waiting for captcha to be solved ...");
         HashMap<String, String> response = null;
         while (response == null) {

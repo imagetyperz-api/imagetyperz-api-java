@@ -1,10 +1,6 @@
 package com.example;
 
 import com.example.captcha.*;
-import com.imagetyperzapi.ImageTyperzAPI;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-
 
 public class Example {
     // main/run method
@@ -18,11 +14,12 @@ public class Example {
             // TestHcaptcha.run();
             // TestTiktok.run();
             // TestFuncaptcha.run();
+            // TestTurnstile.run();
             // TestTask.run();
         }
         catch (Exception ex)
         {
-            System.out.println(String.format("Error occurred: %s", ex.getMessage()));     // print exception message
+            System.out.printf("Error occurred: %s%n", ex.getMessage());     // print exception message
         }
     }
 }

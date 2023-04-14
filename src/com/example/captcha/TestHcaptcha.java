@@ -15,7 +15,7 @@ public class TestHcaptcha {
 
         // get balance
         String balance = i.account_balance();
-        System.out.println(String.format("Balance: %s", balance));
+        System.out.printf("Balance: %s%n", balance);
 
         // solve captcha
         HashMap<String, String> d = new HashMap<String, String>();
@@ -23,6 +23,9 @@ public class TestHcaptcha {
         d.put("sitekey", "8c7062c7-cae6-4e12-96fb-303fbec7fe4f");
         // if invisible hcaptcha - optional
         // d.put("invisible", "1");
+
+        // domain used in loading of hcaptcha interface, default: hcaptcha.com - optional
+        // d.put("domain", "hcaptcha.com");
 
         // extra parameters, useful for enterprise
         // submit userAgent from requests too, when this is used
